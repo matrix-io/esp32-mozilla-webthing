@@ -2,7 +2,7 @@
 
 The current project shows how to build and upload any firmware for the [MatrixVoice ESP32 board](https://www.matrix.one/products/voice) using [PlatformIO](https://platformio.org/).
 
-**note**: The next documentation is based on [Program MATRIX Voice ESP32 with VS Code Using PlatformIO](https://www.hackster.io/matrix-labs/program-matrix-voice-esp32-with-vs-code-using-platformio-3dd498). You dont need IDF toolchain or any library setup, PlatformIO will do it for you.
+**note**: The next documentation is based on [Program MATRIX Voice ESP32 with VS Code Using PlatformIO](https://www.hackster.io/matrix-labs/program-matrix-voice-esp32-with-vs-code-using-platformio-3dd498). You don't need the IDF toolchain or any library setup, PlatformIO will do it for you.
 
 ---
 
