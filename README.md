@@ -1,8 +1,8 @@
 # MatrixVoice PlatformIO
 
-The current project show how build and upload any firmware for [MatrixVoice ESP32 board](https://www.matrix.one/products/voice) using [PlatformIO](https://platformio.org/) OTA or `Arduino OTA`. 
+The current project shows how to build and upload any firmware for the [MatrixVoice ESP32 board](https://www.matrix.one/products/voice) using [PlatformIO](https://platformio.org/).
 
-**note**: The next documentation is based on [Program Over the Air on ESP32 MATRIX Voice](https://www.hackster.io/matrix-labs/program-over-the-air-on-esp32-matrix-voice-5e76bb) documentation but it using PlatformIO instead Arduino IDE. You dont need IDF toolchain or any library, PlatformIO do it for you.
+**note**: The next documentation is based on [Program MATRIX Voice ESP32 with VS Code Using PlatformIO](https://www.hackster.io/matrix-labs/program-matrix-voice-esp32-with-vs-code-using-platformio-3dd498). You dont need IDF toolchain or any library setup, PlatformIO will do it for you.
 
 ---
 
@@ -10,34 +10,34 @@ The current project show how build and upload any firmware for [MatrixVoice ESP3
 
 ### PlatformIO software
 
-Please install first [PlatformIO](http://platformio.org/) open source ecosystem for IoT development and its command line tools (Windows, MacOs and Linux). Also, you may need to install [git](http://git-scm.com/) in your system (PC).
+First install [PlatformIO](http://platformio.org/), an open source ecosystem for IoT development, and its command line tools (Windows, MacOS and Linux). Also, you may need to install [git](http://git-scm.com/) on your system (PC).
 
 
-### MatrixVoice software
+### MATRIX Voice software
 
-For get OTA updates without RaspberryPi, first you should have a one RaspberryPi with `MatrixVoice` software. Please run into your RaspberryPi shell or ssh:
+You should have a RaspberryPi with `MATRIX Voice` software. Please run the following in your RaspberryPi shell or ssh:
 
-##### add debian repository key:
+##### Add debian repository key:
 
 ```bash
 curl https://apt.matrix.one/doc/apt-key.gpg | sudo apt-key add -
 echo "deb https://apt.matrix.one/raspbian $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/matrixlabs.list
 ```
 
-##### update your repository and packages:
+##### Update your repository and packages:
 ```bash
 sudo apt-get update
 sudo apt-get upgrade
 ```
-#####  install the MATRIX init package:
+#####  Install the MATRIX init package:
 ```bash
 sudo apt install matrixio-creator-init
 ```
-#####  reboot your Raspberry Pi:
+#####  Reboot your Raspberry Pi:
 ```bash
 sudo reboot
 ```
-##### SSH back into the pi, execute this command:
+##### SSH back into the pi, execute this command. You may need to use `sudo`:
 ```bash
 voice_esp32_enable
 ```
@@ -47,26 +47,23 @@ voice_esp32_enable
 Return to your PC and clone this repository:
 
 ```bash
-git clone https://github.com/hpsaturn/matrixvoice_platformio.git
-cd matrixvoice_platformio
+git clone https://github.com/esp32-mozilla-webthing
+cd esp32-mozilla-webthing
 ```
-Copy `platformio.ini` sample and change your network parameters:
-```bash
-cp platformio.ini.sample platformio.ini
-```
-**NOTE:** plase change `platformio.ini` and set your `SSID` and `PASSW` like this:
+
+**NOTE:** plase change `platformio.ini` and set your `SSID` and `PASSWORD` like this:
 
 ```python
 '-DWIFI_SSID="MyWifiSsid"'
 '-DWIFI_PASS="MyWifiPassw"'
 ```
-##### building
+##### Building
 ```bash
 pio run
 ```
-##### upload
+##### Upload
 
-Enter to OTA directory and upload the firmware. Please replace the `ip` parameter with your `RaspberryPi` ip like this:
+Enter the `ota` directory and upload the firmware. Please replace the `IP` parameter with your `Raspberry Pi`'s IP like this:
 
 ```bash
 cd ota
@@ -75,7 +72,7 @@ cd ota
 
 The console output should be like this:
 ```bash
-(master) avp:ota$ ./install.sh 192.168.178.65
+user$ ./install.sh 192.168.178.65
 
 Loading firmware: ../.pio/build/esp32dev/firmware.bin
 
@@ -111,29 +108,17 @@ done
 
 ---
 
-## Upload via PlatformIO OTA
-
-After that, you can using your MatrixVoice `without` RaspberryPi. For send new OTA updates, you only need:
-```bash
-pio run --target upload
-```
-
-For update `MatrixVoice` libraries in the future, you only need:
-```bash
-pio lib update
-```
-
----
+> This particular example does not include code to enable over the air reprogramming of the MATRIX Voice ESP32. You can find the code required for this in our other examples.
 
 ## Troubleshooting
 
 #### Uploading issues
 
-If `pio run --target upload` not works, please check `MVID` parameter, it should be a short name, or you can passing ESP32 ip in `upload_port` parameter in `platformio.ini` file.
+If `pio run --target upload` does not work, please check the `MVID` parameter, it should be a short name, or you can pass the ESP32 MATRIX Voice's IP in the `upload_port` parameter in the `platformio.ini` file.
 
 #### Building issues
 
-For a complete `clean` of the project and get the last version of the libraries, please test the next commands:
+For a complete `clean` of the project to get the latest version of the libraries, please test the following commands:
 
 ```javascript
 git pull

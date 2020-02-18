@@ -1,6 +1,7 @@
 #include <Arduino.h>  // This must be included first!
 
-#include "MATRIXVoiceOTA.h"
+#include "Thing.h"
+#include "WebThingAdapter.h"
 
 #include "everloop.h"
 #include "everloop_image.h"
@@ -18,12 +19,32 @@ static hal::Everloop everloop;
 static hal::MicrophoneArray mics;
 static hal::EverloopImage image1d;
 
-MATRIXVoiceOTA otaObj(WIFI_SSID, WIFI_PASS, MVID,
-                      MVPASS);  // please see platformio.ini
+WebThingAdapter* adapter;
+
+const char* ledTypes[] = {"OnOffSwitch", "Light", "ColorControl", nullptr};
+ThingDevice led("board", "MATRIX Voice", ledTypes);
+ThingProperty ledOn("on", "The on/off status of the LEDs", BOOLEAN, "OnOffProperty");
+ThingProperty ledLevel("level", "The level of light from 0-100", NUMBER, "BrightnessProperty");
+ThingProperty ledColor("color", "The color of light in RGB", STRING, "ColorProperty");
+
+bool lastOn = false;
+String lastColor = "#ffffff";
+
+void everloopSet(int r, int g, int b, int w) {
+  for (hal::LedValue &led : image1d.leds) {
+    led.red = r;
+    led.green = g;
+    led.blue = b;
+    led.white = w;
+  }
+
+  everloop.Write(&image1d);
+}
 
 void setup() {
   Serial.begin(115200);
   Serial.println("[SETUP] MatrixVoice init..");
+
   wb.Init();
   everloop.Setup(&wb);
 
@@ -36,7 +57,47 @@ void setup() {
   hal::MicrophoneCore mic_core(mics);
   mic_core.Setup(&wb);
 
-  otaObj.setup();
+  Serial.println("");
+  Serial.print("Connecting to \"");
+  Serial.print(WIFI_SSID);
+  Serial.println("\"");
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  Serial.println("");
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+    everloopSet(10,0,0,0);
+  }
+  everloopSet(0,10,0,0);
+
+  Serial.println("");
+  Serial.print("Connected to ");
+  Serial.println(WIFI_SSID);
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+  adapter = new WebThingAdapter("matrix-voice", WiFi.localIP());
+
+  led.addProperty(&ledOn);
+  ThingPropertyValue levelValue;
+  levelValue.number = 100; //default brightness
+  ledLevel.setValue(levelValue);
+  led.addProperty(&ledLevel);
+
+  ThingPropertyValue colorValue;
+  colorValue.string = &lastColor; //default color is white
+  ledColor.setValue(colorValue);
+  led.addProperty(&ledColor);
+
+  adapter->addDevice(&led);
+  adapter->begin();
+  Serial.println("HTTP server started");
+  Serial.print("http://");
+  Serial.print(WiFi.localIP());
+  Serial.print("/things/");
+  Serial.println(led.id);
+
   Serial.println("[SETUP] MatrixVoice done.");
 }
 
@@ -60,8 +121,41 @@ void everloopAnimation() {
   usleep(25000);
 }
 
+void update(String* color, int const level) {
+  if (!color) return;
+  float dim = level/100.0;
+  int red,green,blue;
+  if (color && (color->length() == 7) && color->charAt(0) == '#') {
+    const char* hex = 1+(color->c_str()); // skip leading '#'
+    sscanf(0+hex, "%2x", &red);
+    sscanf(2+hex, "%2x", &green);
+    sscanf(4+hex, "%2x", &blue);
+  }
+  red = int (red*dim);
+  green = int (green*dim);
+  blue = int (blue*dim);
+  everloopSet(red,green,blue,0);
+}
+
 void loop() {
   // put your main code here
-  everloopAnimation();
-  otaObj.loop();
+  adapter->update();
+  bool on = ledOn.getValue().boolean;
+  int level = ledLevel.getValue().number;
+  if (on) {
+    update(&lastColor, level);
+  } else {
+    everloopSet(0,0,0,0);
+  }
+
+  if (on != lastOn) {
+    Serial.print(led.id);
+    Serial.print(": ");
+    Serial.println(on);
+    Serial.print(", level: ");
+    Serial.print(level);
+    Serial.print(", color: ");
+    Serial.println(lastColor);
+  }
+  lastOn = on;
 }
