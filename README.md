@@ -1,4 +1,4 @@
-# MatrixVoice PlatformIO
+# MATRIX Voice ESP32 as WebThing
 
 The current project shows how to build and upload any firmware for the [MatrixVoice ESP32 board](https://www.matrix.one/products/voice) using [PlatformIO](https://platformio.org/).
 
