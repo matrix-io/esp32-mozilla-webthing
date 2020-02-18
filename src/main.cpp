@@ -1,5 +1,7 @@
 #include <Arduino.h>  // This must be included first!
 
+// Choose large buffer size for ESP32 JSON
+#define LARGE_JSON_BUFFERS 1
 #include "Thing.h"
 #include "WebThingAdapter.h"
 
@@ -149,6 +151,7 @@ void loop() {
   }
 
   if (on != lastOn) {
+    lastOn = on;
     Serial.print(led.id);
     Serial.print(": ");
     Serial.println(on);
@@ -157,5 +160,4 @@ void loop() {
     Serial.print(", color: ");
     Serial.println(lastColor);
   }
-  lastOn = on;
 }
